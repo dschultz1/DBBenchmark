@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0B097943-459D-49B5-8C16-BBA6845A4C68}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D31CC2ED-5D0A-4D80-AB8F-A2248022EEBA}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "neo4jtestbed", "src\neo4jtestbed\neo4jtestbed.xproj", "{4085180E-F3C3-4289-868E-EA4F62B7EA91}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Tester", "src\Tester\Tester.xproj", "{E1EF9919-E558-49CE-9698-EBFD11E359A6}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "MySQLTestBed", "src\MySQLTestBed\MySQLTestBed.xproj", "{AF1F1E47-B3E4-47F1-93C4-13A7A171E664}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DBTestBed", "src\DBTestBed\DBTestBed.xproj", "{7C5679E4-DEF2-4D6E-81BA-D1F2392B2DA4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4085180E-F3C3-4289-868E-EA4F62B7EA91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4085180E-F3C3-4289-868E-EA4F62B7EA91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4085180E-F3C3-4289-868E-EA4F62B7EA91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4085180E-F3C3-4289-868E-EA4F62B7EA91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1EF9919-E558-49CE-9698-EBFD11E359A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1EF9919-E558-49CE-9698-EBFD11E359A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1EF9919-E558-49CE-9698-EBFD11E359A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1EF9919-E558-49CE-9698-EBFD11E359A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF1F1E47-B3E4-47F1-93C4-13A7A171E664}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF1F1E47-B3E4-47F1-93C4-13A7A171E664}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF1F1E47-B3E4-47F1-93C4-13A7A171E664}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF1F1E47-B3E4-47F1-93C4-13A7A171E664}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C5679E4-DEF2-4D6E-81BA-D1F2392B2DA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C5679E4-DEF2-4D6E-81BA-D1F2392B2DA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C5679E4-DEF2-4D6E-81BA-D1F2392B2DA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C5679E4-DEF2-4D6E-81BA-D1F2392B2DA4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4085180E-F3C3-4289-868E-EA4F62B7EA91} = {0B097943-459D-49B5-8C16-BBA6845A4C68}
+		{E1EF9919-E558-49CE-9698-EBFD11E359A6} = {0B097943-459D-49B5-8C16-BBA6845A4C68}
+		{AF1F1E47-B3E4-47F1-93C4-13A7A171E664} = {0B097943-459D-49B5-8C16-BBA6845A4C68}
+		{7C5679E4-DEF2-4D6E-81BA-D1F2392B2DA4} = {0B097943-459D-49B5-8C16-BBA6845A4C68}
+	EndGlobalSection
+EndGlobal
