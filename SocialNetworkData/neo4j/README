@@ -1,0 +1,55 @@
+Add neo4j_installation_directory\neo4j-community-3.1.1\bin to PATH.
+This can be done in Windows by going to Control Panel, System, Advanced System Settings, Environment Variables.
+
+Open your neo4j installation directory. You should see a folder named "data".
+Create new folders named "employees_data", "tiny_data", "small_data", "med_data", "large_data".
+
+Open neo4j_installation_directory\neo4j-community-3.1.1\conf\neo4j.conf the configuration file for neo4j
+Edit or add :
+dbms.shell.enabled=true
+dbms.directories.data=the_folder_for_the_db_you_want_to_work_with // changes every time you want to work with a different db
+
+Example
+dbms.directories.data=employees_data
+Now when I run neo4j I will be working in the employees database.
+
+TO SETUP DATABASES:
+- Employees DB -
+Note for this setup you either must move the .csv files located in path_to_repository/employees-db-setup to C:/neo4j/databases/, 
+OR you will need to rename the paths in the import_csv.cypher file located in path_to_repository/employees-db-setup.
+
+Set up config file with : dbms.directories.data=employees_data
+
+Command Line> neo4j start
+Command Line> neo4j stop
+The purpose of the above is to set up all the needed files inside of the user created folder.
+
+Command Line> neo4j-shell -path neo4j_installation_directory/employees_data/databases/graph.db -file path_to_repository/employees-db-setup/import_csv.cypher
+
+- Tiny DB - 
+Set up config file with : dbms.directories.data=tiny_data
+
+Command Line> neo4j start
+Command Line> neo4j stop
+Second Windown> neo4j-shell -path neo4j_installation_directory/tiny_data/databases/graph.db -file path_to_repository/SocialNetworkData/neo4j/tiny.cypher
+
+- Small DB - 
+Set up config file with : dbms.directories.data=small_data
+
+Command Line> neo4j start
+Command Line> neo4j stop
+Second Windown> neo4j-shell -path neo4j_installation_directory/small_data/databases/graph.db -file path_to_repository/SocialNetworkData/neo4j/small.cypher
+
+- Med DB - 
+Set up config file with : dbms.directories.data=med_data
+
+Command Line> neo4j start
+Command Line> neo4j stop
+Second Windown> neo4j-shell -path neo4j_installation_directory/med_data/databases/graph.db -file path_to_repository/SocialNetworkData/neo4j/med.cypher
+
+- Large DB - 
+Set up config file with : dbms.directories.data=large_data
+
+Command Line> neo4j start
+Command Line> neo4j stop
+Second Windown> neo4j-shell -path neo4j_installation_directory/large_data/databases/graph.db -file path_to_repository/SocialNetworkData/neo4j/large.cypher
