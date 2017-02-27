@@ -36,7 +36,7 @@ LOAD CSV WITH HEADERS FROM "file:///C:/neo4j/databases/dept_emp.csv" AS row
 CREATE (:DeptEmployee {EmployeeNumber: row.emp_no, DeptNumber: row.dept_no, 
 				StartDate: row.from_date, EndDate: row.to_date} );
 
-CREATE INDEX ON :Employee(EmployeeNumber);
+// CREATE INDEX ON :Employee(EmployeeNumber);
 CREATE INDEX ON :DepartmentManager(EmployeeNumber);
 CREATE INDEX ON :DepartmentManager(DeptNumber);
 CREATE INDEX ON :Department(DeptNumber);
