@@ -34,7 +34,7 @@ CREATE (:Person {ID: row.id,
 					LastName: row.last_name,
 					Birthday: row.birthday,
 					Age: row.age,
-					AcctCreatedDat: row.acct_created_date} );
+					AcctCreatedDate: row.acct_created_date} );
 
 // Create Groups
 USING PERIODIC COMMIT

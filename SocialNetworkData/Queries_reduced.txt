@@ -1,0 +1,363 @@
+-------------------------------------------------Generic--------------------------------
+/////////////////////////////////////
+1 // # of Users Per State
+/////////////////////////////////////
+// Cypher
+/////////
+MATCH (p:Person) RETURN p.State, COUNT(p.State) as occupants ORDER BY occupants DESC
+///////
+// SQL
+///////
+SELECT state, COUNT(state) AS num_users
+FROM people
+GROUP BY state
+ORDER BY num_users DESC;
+
+-------------------------------------------------Stuff Involving Groups--------------------------------
+/////////////////////////////////////
+2 // # of groups per topic type
+/////////////////////////////////////
+// Cypher
+/////////
+MATCH (t:Topic) <- [tc:OfTopic] - (:Group) RETURN t, COUNT(tc) AS topicCount ORDER BY topicCount DESC
+///////
+// SQL
+///////
+SELECT groups.topic, COUNT(groups.topic) as numGroups
+FROM groups
+GROUP BY groups.topic
+ORDER BY numGroups DESC;
+
+////////////////////////////////////
+3 // # of members of groups per topic type
+////////////////////////////////////
+// Cypher
+/////////
+MATCH (g:Group) <-[mc:MemberOf]-(:Person) RETURN g.Topic, COUNT(mc) AS memberCount ORDER BY memberCount DESC
+///////
+// SQL
+///////
+SELECT groups.topic, COUNT(members.person_id) AS numMembers
+FROM groups
+INNER JOIN members
+ON groups.id = members.group_id
+GROUP BY groups.topic
+ORDER BY numMembers DESC;
+
+///////////////////////////////
+4 // Top group topics for a user
+///////////////////////////////
+// Cypher
+/////////
+MATCH (person:Person {ID:"549"}) -[:MemberOf]-> (g:Group) RETURN g.Topic, COUNT(g.Topic) AS topicCount ORDER BY topicCount DESC, g.Topic
+///////
+// SQL
+///////
+SELECT groups.topic, COUNT(groups.topic) AS memberCount
+FROM (SELECT members.*
+	FROM members
+	WHERE members.person_id = 549) AS initMember
+INNER JOIN groups
+ON initMember.group_id = groups.id
+GROUP BY groups.topic
+ORDER BY memberCount DESC, groups.topic;
+
+//////////////////////////////
+5 // Number of Members per group
+//////////////////////////////
+// Cypher
+/////////
+MATCH (group:Group) <-[mc:MemberOf]- (:Person) RETURN group, COUNT(mc) as numMembers ORDER BY numMembers DESC, group.ID DESC
+////////
+// SQL
+////////
+SELECT groups.*, numMembers
+FROM (SELECT group_id, COUNT(person_id) AS numMembers
+	FROM members
+	GROUP BY group_id) AS memberCount
+INNER JOIN groups
+ON groups.id = memberCount.group_id
+ORDER BY numMembers DESC, id DESC;
+
+///////////////////////////////
+6 // Group Recommendation
+///////////////////////////////
+NOT YET// Cypher
+/////////
+MATCH (person:Person {ID:"549"} )- [:MemberOf] -> (:Group) -[tc:OfTopic]-> (t:Topic) <-[:OfTopic]- (group:Group) <-[mc:MemberOf]- (:Person) WHERE NOT (group) <-[:MemberOf]- (:Person {ID: "549"}) RETURN group, COUNT(DISTINCT mc) AS numMembers, COUNT(DISTINCT tc) AS topicCount ORDER BY topicCount DESC, numMembers DESC
+///////
+// SQL
+///////
+SELECT groupMemberCount.*, memberCount
+FROM (SELECT groups.topic, COUNT(groups.topic) AS memberCount
+	FROM (SELECT members.*
+		FROM members
+		WHERE members.person_id = 549) AS initMember
+	INNER JOIN groups
+	ON initMember.group_id = groups.id
+	GROUP BY groups.topic) AS userTopicCount
+INNER JOIN (SELECT groups.*, numMembers
+	FROM (SELECT group_id, COUNT(person_id) AS numMembers
+		FROM members
+		WHERE group_id NOT IN (SELECT DISTINCT group_id FROM members WHERE person_id = 549)
+		GROUP BY group_id) AS memberCount
+	INNER JOIN groups
+	ON groups.id = memberCount.group_id) AS groupMemberCount
+ON userTopicCount.topic = groupMemberCount.topic
+ORDER BY memberCount DESC, numMembers DESC;
+
+
+
+-------------------------------------------------Stuff Involving Posts--------------------------------
+//////////////////////////////////////
+7 // Top 25 liked posts
+//////////////////////////////////////
+// Cypher
+/////////
+MATCH (p:Post) <- [l:Likes] - (:Person) RETURN p, COUNT(l) AS likeCount ORDER BY likeCount DESC
+///////
+// SQL
+///////
+SELECT posts.*, COUNT(posts.id) AS likeCount
+FROM posts 
+INNER JOIN likes
+ON posts.id = likes.post_id
+GROUP BY posts.id
+ORDER BY likeCount DESC;
+
+
+///////////////////////////////////////////////////////
+8 // Num of posts liked of each content type for a single user - gives top liked content for a user
+///////////////////////////////////////////////////////
+// Cypher
+/////////
+MATCH (person:Person {ID:"549"}) -[:Likes]-> (p:Post) RETURN p.Content, COUNT(p.Content) AS contentCount ORDER BY contentCount DESC
+//////
+// SQL
+//////
+SELECT posts.content, COUNT(posts.content) AS likeCount
+FROM (SELECT likes.*
+	FROM likes
+	WHERE person_id = 549) AS initLike
+INNER JOIN posts
+ON initLike.post_id = posts.id
+GROUP BY posts.content
+ORDER BY likeCount DESC;
+
+////////////////////////////////////////////////////////
+9 // Most recent 100 posts of the top liked contents for a user
+////////////////////////////////////////////////////////
+// Cypher
+/////////
+MATCH (person:Person {ID:"549"}) -[:Likes]-> (post:Post) WITH post.Content AS content, COUNT(post.Content) AS contentCount, person
+MATCH (p:Post) WHERE NOT (person) -[:Likes]-> (p) AND p.Content = content RETURN p, content, contentCount ORDER BY contentCount DESC, p.CreatedOn DESC
+//////
+// SQL
+//////
+SELECT unliked.*, counts.likeCount
+FROM(SELECT * 
+	FROM posts
+	WHERE posts.id NOT IN (SELECT DISTINCT post_id FROM likes WHERE person_id = 549)) AS unliked
+INNER JOIN (SELECT posts.content, COUNT(posts.content) AS likeCount
+	FROM (SELECT likes.*
+		FROM likes
+		WHERE person_id = 549) AS initLike
+	INNER JOIN posts
+	ON initLike.post_id = posts.id
+GROUP BY posts.content) AS counts
+ON counts.content = unliked.content
+ORDER BY likeCount DESC, unliked.created_on DESC;
+
+-------------------------------------------------Stuff Involving Dates--------------------------------
+/////////////////////////////////////
+10 // List all posts by a user ordered by date
+/////////////////////////////////////
+// Cypher
+/////////
+MATCH (:Person {ID:"549"}) -[:Wrote]-> (p:Post) RETURN p ORDER BY p.CreatedOn DESC
+////////
+// SQL
+////////
+SELECT posts.*
+FROM posts
+WHERE creator_id = 549
+ORDER BY posts.created_on DESC;
+
+/////////////////////////////////////
+11 // List all posts in a date range
+/////////////////////////////////////
+// Cypher
+//////////
+MATCH (p:Post) WHERE p.CreatedOn >= "2014-11-01" AND p.CreatedOn < "2014-12-01" RETURN p ORDER BY p.CreatedOn
+///////
+// SQL
+///////
+SELECT posts.*
+FROM posts
+WHERE posts.created_on >= "2014-11-01"
+AND posts.created_on < "2014-12-01"
+ORDER BY posts.created_on;
+
+/////////////////////////////////////
+12 // Number of Accounts created in a date range
+/////////////////////////////////////
+// Cypher 
+//////////
+MATCH (person:Person) WHERE person.AcctCreatedDate >= "2015-01-01" AND person.AcctCreatedDate < "2016-01-01" RETURN COUNT(person)
+////////
+// SQL
+////////
+SELECT COUNT(id)
+FROM people
+WHERE people.acct_created_date >= "2015-01-01"
+AND people.acct_created_date < "2016-01-01";
+
+/////////////////////////////////////
+13 // Everyone with birthday on a given date
+/////////////////////////////////////
+// Cypher
+//////////
+MATCH (person:Person) WHERE person.Birthday ENDS WITH "-04-04" RETURN person
+////////
+// SQL
+////////
+SELECT *
+FROM people
+WHERE MONTH(people.birthday) = MONTH("2014-04-04")
+AND DAY(people.birthday) = DAY("2014-04-04");
+
+
+-------------------------------------------------Stuff Involving Friends--------------------------------
+/////////////////////////////////////
+14 // List all Friends
+/////////////////////////////////////
+// Cypher
+/////////
+Match (person:Person {ID : "549"})-[fw:FriendsWith]->(friend:Person) RETURN friend, fw.FriendedOn // this returns the nodes, useful for visualization or further queries
+--OR
+Match (person:Person {ID : "549"})-[fw:FriendsWith]->(friend:Person) return friend.ID, friend.FirstName, friend.LastName, fw.FriendedOn ORDER BY friend.LastName, friend.FirstName // returns only the friend ids and names, and date. Should be quicker but possibly less useful.
+///////
+// SQL
+///////
+SELECT friend.*, person.friended_on
+FROM (SELECT * 
+	FROM friends
+	WHERE id1 = 549) AS person
+INNER JOIN people AS friend
+ON person.id2 = friend.id
+ORDER BY friend.last_name, friend.first_name;  // Again this gives everything 
+--OR
+SELECT friend.id, friend.first_name, friend.last_name, person.friended_on
+FROM (SELECT * 
+	FROM friends
+	WHERE id1 = 549) AS person
+INNER JOIN people AS friend
+ON person.id2 = friend.id
+ORDER BY friend.last_name, friend.first_name; // Again this is only id, names, and friended on date.
+
+///////////////////////////////////////////////////
+15 // List top 25 2nd friends who are not 1st friends.
+///////////////////////////////////////////////////
+// Cypher
+/////////
+MATCH (person1: Person {ID : "549"}) - [fw:FriendsWith*2] -> (friends2:Person) WHERE NOT (person1) - [:FriendsWith*1] -> (friends2) AND person1<>friends2  WITH person1, COUNT(fw) AS commonFriendCount, friends2 RETURN friends2, commonFriendCount ORDER BY commonFriendCount DESC, friends2.LastName
+//////
+// SQL
+//////
+CREATE TEMPORARY TABLE friend1
+(SELECT initialId, friend.id AS friend1Id
+FROM (SELECT id AS initialId, id2
+	FROM friends
+	WHERE id1 = 549) AS person
+INNER JOIN social_small.people AS friend
+ON person.id2 = friend.id);
+
+CREATE TEMPORARY TABLE friend2Counts
+(SELECT id2 AS id, COUNT(id2) AS commonFriendCount
+FROM friend1
+INNER JOIN friends
+ON friend1.friend1Id = friends.id1
+WHERE id2 <> friend1.initialId
+GROUP BY id2);
+
+SELECT friend2Counts.commonFriendCount, people.*
+FROM friend2Counts
+INNER people
+ON friend2Counts.id = people.id
+WHERE friend2Counts.id NOT IN (SELECT DISTINCT friend1Id FROM friend1)
+ORDER BY commonFriendCount DESC, people.last_name;
+
+DROP TEMPORARY TABLE friend1;
+DROP TEMPORARY TABLE friend2Counts;
+
+
+///////////////////////////////////////////////////////////////
+16 // Second friends of oposite gender ordered by number of common group memberships, then number of common friends, within 3 yr +- of user age
+///////////////////////////////////////////////////////////////
+// Cypher
+/////////
+MATCH (person1: Person {ID : "549"}) -[fw:FriendsWith*2]-> (friends2:Person) WHERE NOT (person1) - [:FriendsWith*1] -> (friends2) AND person1<>friends2 AND person1.Gender <> friends2.Gender AND (toInteger(friends2.Age) < toInteger(person1.Age) + 4 AND toInteger(friends2.Age) > toInteger(person1.Age) - 4) WITH person1, friends2, COUNT(fw) as commonFriends OPTIONAL MATCH (friends2)-[m:MemberOf*2]-(person1) RETURN friends2, commonFriends, COUNT(m) AS commonGroups ORDER BY commonGroups DESC, commonFriends DESC
+//////
+// SQL
+//////
+CREATE TEMPORARY TABLE friend1
+(SELECT initialId, initGender, friend.id AS friend1Id
+FROM (SELECT id AS initialId, gender AS initGender, id2
+	FROM (SELECT id, gender FROM people WHERE id = 549) AS requestor
+	INNER JOIN friends
+	ON requestor.id = friends.id1)	AS person
+INNER JOIN people AS friend
+ON person.id2 = friend.id);
+
+CREATE TEMPORARY TABLE friend2Counts
+(SELECT id2 AS id, COUNT(id2) AS commonFriendCount
+FROM friend1
+INNER JOIN friends
+ON friend1.friend1Id = friends.id1
+WHERE id2 <> friend1.initialId
+GROUP BY id2);
+
+CREATE TEMPORARY TABLE f2Gender
+(SELECT friend2Counts.commonFriendCount, people.*, initId
+FROM friend2Counts
+INNER JOIN (SELECT people.* FROM people, friend1, WHERE people.gender <> friend1.initGender) AS potentials
+ON friend2Counts.id = potentials.id
+WHERE friend2Counts.id NOT IN (SELECT DISTINCT friend1Id FROM friend1)
+    AND potentials.age < init.initAge + 4
+    AND potentials.age > init.initAge - 4);
+
+CREATE TEMPORARY TABLE memberCounts
+(SELECT members.person_id AS commonMember, COUNT(members.person_id) AS commonGroupCount
+FROM (SELECT DISTINCT initId, members.*
+FROM f2Gender 
+INNER JOIN social_small.members
+ON f2Gender.initId = members.person_id) AS initGroups
+INNER JOIN social_small.members
+ON initGroups.group_id = members.group_id
+WHERE initGroups.initId <> members.person_id
+GROUP BY members.person_id);
+
+SELECT commonFriendCount, commonGroupCount, id, first_name, last_name, age
+FROM f2Gender
+LEFT OUTER JOIN memberCounts
+ON f2Gender.id = memberCounts.commonMember
+ORDER BY memberCounts.commonGroupCount DESC, f2Gender.commonFriendCount DESC;
+
+DROP TEMPORARY TABLE friend1;
+DROP TEMPORARY TABLE friend2Counts;
+DROP TEMPORARY TABLE f2Gender;
+DROP TEMPORARY TABLE memberCounts; 
+
+********THIS ONE IS NOT WORKING********************
+////////////////////////////////////////////////////
+17 // List top 25 3rd friends who are not 1st or 2nd friends
+////////////////////////////////////////////////////
+// Cypher
+/////////
+MATCH (person1: Person {ID : "549"}) - [:FriendsWith] -> (friends1:Person) - [:FriendsWith] -> (friends2:Person) - [fw:FriendsWith] -> (friends3:Person) WHERE friends1 <> friends3 AND friends2<> friends3 AND person1<>friends3 WITH person1, COUNT(fw) AS commonFriendCount, friends3 RETURN friends3, commonFriendCount ORDER BY commonFriendCount DESC, friends3.LastName LIMIT 25
+
+
+MATCH (person1: Person {ID : "549"}) -[fw:FriendsWith*3]-> (friends3:Person) WHERE NOT (person1) -[:FriendsWith*2]-> (friends3) AND NOT (person1) -[:FriendsWith]-> (friends3) AND person1<>friends3 RETURN friends3, COUNT(DISTINCT fw) AS common2FriendCount ORDER BY common2FriendCount DESC, friends3.LastName LIMIT 25
+///////
+// SQL
+///////

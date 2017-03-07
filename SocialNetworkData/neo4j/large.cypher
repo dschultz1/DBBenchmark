@@ -34,7 +34,7 @@ CREATE (:Person {ID: row.id,
 					LastName: row.last_name,
 					Birthday: row.birthday,
 					Age: row.age,
-					AcctCreatedDat: row.acct_created_date} );
+					AcctCreatedDate: row.acct_created_date} );
 
 // Create Groups
 USING PERIODIC COMMIT
@@ -106,3 +106,4 @@ MATCH (group:Group {ID : row.id})
 MATCH (topic:Topic {ID : row.topic_id})
 MERGE (person)-[:CreatedGroup]->(group)
 MERGE (group)-[:OfTopic]->(topic);
+
