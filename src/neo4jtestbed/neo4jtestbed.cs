@@ -90,8 +90,9 @@ namespace neo4jtestbed
             {
                 watch.Start();
                 connection.execStatement();
-//                connection.session.Dispose();
-//                connection.driver.Dispose();
+                //                connection.session.Dispose();
+                //                connection.driver.Dispose();
+                double t = connection.result.Summary.ResultAvailableAfter.TotalMilliseconds;
           
                 watch.Stop();
                 double milli = watch.ElapsedTicks * (1.0 / Stopwatch.Frequency) * 1000;
